@@ -3,31 +3,41 @@ set -e
 
 # environment:
 #TRACKER_API_TOKEN
+#PRIVATE_BACKLOG_ID
+#PUBLIC_BACKLOG_ID
+PRIVATE_BACKLOG_ID=2345567
+PUBLIC_BACKLOG_ID=2345570
+
+if [ -z $TRACKER_API_TOKEN ]; then
+  echo
+  echo 'please `export $TRACKER_API_TOKEN=[your api token]`, found in [Username] > Profile'
+  echo
+  exit
+fi
 
 CSV_IN_FILE="$HOME/Downloads/in.csv"
 CSV_OUT_FILE="out.csv"
 
-PUBLIC_BACKLOG_URL="https://www.pivotaltracker.com/n/projects/2345567"
+private_backlog_manual_url="https://www.pivotaltracker.com/projects/$PRIVATE_BACKLOG_ID/export"
 echo
-echo "Dear user, please download csv from $PRIVATE_BACKLOG_URL to ~/Downloads/in.csv"
-echo
+echo "Dear user, please download csv from $private_backlog_manual_url to ~/Downloads/in.csv. [Return] to continue"
 read
 
 head -1 $CSV_IN_FILE > $CSV_OUT_FILE
 cat $CSV_IN_FILE | awk -F ',' '{label=$3; if (label=="public") print $0}' >> $CSV_OUT_FILE
 
-PUBLIC_BACKLOG_URL="https://www.pivotaltracker.com/n/projects/2345570"
+#PUBLIC_BACKLOG_URL="https://www.pivotaltracker.com/n/projects/2345570"
+public_backlog_url="https://www.pivotaltracker.com/n/projects/$PUBLIC_BACKLOG_ID"
 echo
-echo "Dear user, please delete all stories in $PUBLIC_BACKLOG_URL"
-echo
+echo "Dear user, please DELETE all stories in $public_backlog_url. [Return] to continue"
 read
 
 # DELETE_URL="https://www.pivotaltracker.com/services/v5/commands?envelope=true"
 # # TODO idk maybe use a non-internal API endpoint or something
 # curl -X POST $DELETE_URL
 
+public_backlog_manual_url="https://www.pivotaltracker.com/projects/$PUBLIC_BACKLOG_ID/import"
 echo
-echo "Dear user, please upload out.csv to $PUBLIC_BACKLOG_URL"
-echo
+echo "Dear user, please upload $(dirname $0)/out.csv to $public_backlog_manual_url"
 
 
