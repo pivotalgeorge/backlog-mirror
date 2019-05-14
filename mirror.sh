@@ -8,7 +8,7 @@ set -e
 
 if [ -z $TRACKER_API_TOKEN ]; then
   echo
-  echo 'Please `export $TRACKER_API_TOKEN=[your api token]`, found in [Username] > Profile.'
+  echo 'Please `export TRACKER_API_TOKEN=[your api token]`, found in [Username] > Profile.'
   echo
   exit
 fi
@@ -36,7 +36,7 @@ read
 #curl -X POST -H "X-TrackerToken: $TRACKER_API_TOKEN" -H "Content-Type: application/json" -d '{"story_ids":[551]}' "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/export"
 #PUBLIC_STORIES=$(
 PROJECT_ID=$PRIVATE_PROJECT_ID
-curl -X GET -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories" #|jq '.[] | select ( .labels | .[] | select (.name=="public"))'
+# curl -X GET -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PRIVATE_BACKLOG_ID/stories" #|jq '.[] | select ( .labels | .[] | select (.name=="public"))'
 
 
 head -1 $CSV_IN_FILE > $CSV_OUT_FILE
@@ -46,6 +46,13 @@ cat $CSV_IN_FILE | awk -F ',' '{label=$3; if (label=="public") print $0}' >> $CS
 public_backlog_url="https://www.pivotaltracker.com/n/projects/$PUBLIC_BACKLOG_ID"
 echo "Dear user: please DELETE all stories in $public_backlog_url. [Return] to continue"
 read
+#VAR=$(curl -X GET -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories" |jq '.[] | select ( .labels | .[] | select (.name=="public"))')
+VAR2=$(curl -X GET -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories" |jq '.[] | select ( .labels | .[] | select (.name=="public")) |.id')
+echo $VAR2
+for s in $VAR2; do
+  curl -X DELETE -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories/$s"
+done
+#curl -X POST -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories" |jq '.[] | select ( .labels | .[] | select (.name=="public"))'
 
 # DELETE_URL="https://www.pivotaltracker.com/services/v5/commands?envelope=true"
 # # TODO idk maybe use a non-internal API endpoint or something
