@@ -8,7 +8,7 @@ set -e
 
 if [ -z $TRACKER_API_TOKEN ]; then
   echo
-  echo 'Please `export $TRACKER_API_TOKEN=[your api token]`, found in [Username] > Profile.'
+  echo 'Please `export TRACKER_API_TOKEN=[your api token]`, found in [Username] > Profile.'
   echo
   exit
 fi
