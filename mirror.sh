@@ -38,7 +38,6 @@ PROJECT_ID=$PRIVATE_PROJECT_ID
 VAR0=$(curl -X GET -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PRIVATE_BACKLOG_ID/stories")
 VAR1=$(curl -X GET -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PRIVATE_BACKLOG_ID/stories" |jq -c '.[] | select ( .labels | .[] | select (.name=="public")) | .name')
 echo $VAR0
-read
 
 
 head -1 $CSV_IN_FILE > $CSV_OUT_FILE
@@ -52,7 +51,6 @@ echo $VAR2
 for s in $VAR2; do
   curl -X DELETE -H "X-TrackerToken: $TRACKER_API_TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories/$s"
 done
-read
 
 # DELETE_URL="https://www.pivotaltracker.com/services/v5/commands?envelope=true"
 # # TODO idk maybe use a non-internal API endpoint or something
@@ -66,8 +64,9 @@ echo "$VAR1" | while IFS= read -r line ; do
 # for s in $VAR1; do
   payload="{\"name\": $line}"
   echo "I don't do sadness"
-  echo \'$payload\'
-  curl -X POST -H "X-TrackerToken: $TRACKER_API_TOKEN" -H "Content-Type: application/json" -d \'${payload}\' "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories"
-  # curl -X POST -H "X-TrackerToken: $TRACKER_API_TOKEN" -d '{"name": "Buggy chore"}' "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories"
+  echo $payload
+  curl -X POST -H "X-TrackerToken: $TRACKER_API_TOKEN" -H "Content-Type: application/json" -d "$payload" "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories"
+  # curl -X POST -H "X-TrackerToken: $TRACKER_API_TOKEN" -H "Content-Type: application/json" -d '{"name": "Buggy chore"}\' "https://www.pivotaltracker.com/services/v5/projects/$PUBLIC_BACKLOG_ID/stories"
 done
+
 
